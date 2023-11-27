@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project 7</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    video {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    #weather-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+    }
+
+    #weather-info {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    #zip-code-input {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #get-weather-button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <video autoplay muted loop>
+    <source src="./production_id_3856665 (1080p).mp4" type="video/mp4">
+  </video>
+
+  <div id="weather-container">
+    <div id="weather-info">
+      <h2>Weather Information</h2>
+      <p><strong>Location:</strong> <span id="location"></span></p>
+      <p><strong>High:</strong> <span id="high"></span>°F</p>
+      <p><strong>Low:</strong> <span id="low"></span>°F</p>
+      <p><strong>Forecast:</strong> <span id="forecast"></span></p>
+      <p><strong>Humidity:</strong> <span id="humidity"></span>%</p>
+
+      <input type="text" id="zip-code-input" placeholder="Enter Zip Code">
+      <button id="get-weather-button" onclick="getWeather()">Get Weather</button>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = '8d35cf27f8cdaf07766853196cd3287a';
+
+    const kelvinToFahrenheit = kelvin => (kelvin - 273.15) * 9/5 + 32;
+
+    const getWeatherData = async (zipCode) => {
+      try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?zip=${zipCode}&appid=${apiKey}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+      }
+    };
+
+    const updateUI = async (zipCode) => {
+      const weatherData = await getWeatherData(zipCode);
+
+      if (weatherData) {
+        const locationElement = document.getElementById('location');
+        const highElement = document.getElementById('high');
+        const lowElement = document.getElementById('low');
+        const forecastElement = document.getElementById('forecast');
+        const humidityElement = document.getElementById('humidity');
+
+        locationElement.textContent = `${weatherData.name}, ${weatherData.sys.country}`;
+        highElement.textContent = kelvinToFahrenheit(weatherData.main.temp_max).toFixed(2);
+        lowElement.textContent = kelvinToFahrenheit(weatherData.main.temp_min).toFixed(2);
+        forecastElement.textContent = weatherData.weather[0].description;
+        humidityElement.textContent = weatherData.main.humidity;
+      }
+    };
+
+    const getWeather = () => {
+      const zipCodeInput = document.getElementById('zip-code-input');
+      const zipCode = zipCodeInput.value;
+      updateUI(zipCode);
+    };
+
+    updateUI('10006');
+  </script>
+
+</body>
+</html>
